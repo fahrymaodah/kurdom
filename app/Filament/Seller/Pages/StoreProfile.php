@@ -11,17 +11,16 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Form;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
-class StoreProfile extends Page implements HasForms
+class StoreProfile extends Page
 {
-    use InteractsWithForms;
-
     protected static string | \BackedEnum | null $navigationIcon = Heroicon::BuildingStorefront;
 
     protected static ?string $title = 'Profil Toko';
@@ -29,8 +28,6 @@ class StoreProfile extends Page implements HasForms
     protected static ?string $navigationLabel = 'Profil Toko';
 
     protected static ?int $navigationSort = 1;
-
-    protected string $view = 'filament.seller.pages.store-profile';
 
     public ?array $data = [];
 
@@ -74,6 +71,21 @@ class StoreProfile extends Page implements HasForms
                 TextInput::make('phone')
                     ->label('No. Telepon')
                     ->disabled(),
+            ]);
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Form::make([EmbeddedSchema::make('form')])
+                    ->id('form')
+                    ->livewireSubmitHandler('save')
+                    ->footer([
+                        Actions::make($this->getFormActions())
+                            ->alignment($this->getFormActionsAlignment())
+                            ->key('form-actions'),
+                    ]),
             ]);
     }
 

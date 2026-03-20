@@ -10,22 +10,20 @@ use App\Services\OrderService;
 use App\Services\PhoneLookupService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Form;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
-class CreateOrder extends Page implements HasForms
+class CreateOrder extends Page
 {
-    use InteractsWithForms;
-
     protected static string | \BackedEnum | null $navigationIcon = Heroicon::PlusCircle;
 
     protected static ?string $title = 'Buat Pesanan';
@@ -33,8 +31,6 @@ class CreateOrder extends Page implements HasForms
     protected static ?string $navigationLabel = 'Buat Pesanan';
 
     protected static ?int $navigationSort = 2;
-
-    protected string $view = 'filament.seller.pages.create-order';
 
     public ?array $data = [];
 
@@ -68,7 +64,7 @@ class CreateOrder extends Page implements HasForms
                     ->tel()
                     ->required()
                     ->suffixAction(
-                        FormAction::make('lookupBuyer')
+                        Action::make('lookupBuyer')
                             ->icon(Heroicon::MagnifyingGlass)
                             ->action(function ($state, $set) {
                                 $user = app(PhoneLookupService::class)->findByPhone($state);
@@ -124,6 +120,21 @@ class CreateOrder extends Page implements HasForms
                     ->content(fn () => $this->estimatedFee !== null
                         ? 'Rp ' . number_format($this->estimatedFee, 0, ',', '.') . ' (' . $this->estimatedDistance . ' km)'
                         : 'Isi koordinat dan klik Hitung Ongkir'),
+            ]);
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Form::make([EmbeddedSchema::make('form')])
+                    ->id('form')
+                    ->livewireSubmitHandler('submit')
+                    ->footer([
+                        Actions::make($this->getFormActions())
+                            ->alignment($this->getFormActionsAlignment())
+                            ->key('form-actions'),
+                    ]),
             ]);
     }
 
