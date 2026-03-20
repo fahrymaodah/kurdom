@@ -1,11 +1,14 @@
 <?php
 
-namespace App\Filament\Widgets;
+declare(strict_types=1);
+
+namespace App\Filament\Admin\Widgets;
 
 use App\Enums\OrderStatus;
 use App\Enums\UserRole;
 use App\Models\Order;
 use App\Models\User;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -15,13 +18,13 @@ class AdminStatsWidget extends BaseWidget
     {
         return [
             Stat::make('Total Penjual', User::role(UserRole::Seller)->count())
-                ->icon('heroicon-o-building-storefront'),
+                ->icon(Heroicon::BuildingStorefront),
             Stat::make('Total Kurir', User::role(UserRole::Courier)->count())
-                ->icon('heroicon-o-truck'),
+                ->icon(Heroicon::Truck),
             Stat::make('Pesanan Hari Ini', Order::whereDate('created_at', today())->count())
-                ->icon('heroicon-o-shopping-bag'),
+                ->icon(Heroicon::ShoppingBag),
             Stat::make('Selesai Hari Ini', Order::where('status', OrderStatus::Completed)->whereDate('completed_at', today())->count())
-                ->icon('heroicon-o-check-circle')
+                ->icon(Heroicon::CheckCircle)
                 ->color('success'),
         ];
     }

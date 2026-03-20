@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Filament\Resources\OrderResource\Pages;
+declare(strict_types=1);
 
-use App\Filament\Resources\OrderResource;
+namespace App\Filament\Admin\Resources\OrderResource\Pages;
+
+use App\Filament\Admin\Resources\OrderResource;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewOrder extends ViewRecord

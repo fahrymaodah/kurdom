@@ -1,24 +1,26 @@
 <?php
 
-namespace App\Filament\Resources;
+declare(strict_types=1);
+
+namespace App\Filament\Admin\Resources;
 
 use App\Enums\OrderSource;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::ShoppingBag;
 
     protected static string | UnitEnum | null $navigationGroup = 'Operasional';
 
@@ -44,11 +46,11 @@ class OrderResource extends Resource
                     ->default('-'),
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn (OrderStatus $state) => $state->label())
-                    ->color(fn (OrderStatus $state) => $state->color()),
+                    ->formatStateUsing(fn (OrderStatus $state): string => $state->label())
+                    ->color(fn (OrderStatus $state): string => $state->color()),
                 TextColumn::make('order_source')
                     ->label('Sumber')
-                    ->formatStateUsing(fn (OrderSource $state) => $state->label()),
+                    ->formatStateUsing(fn (OrderSource $state): string => $state->label()),
                 TextColumn::make('total')
                     ->money('IDR')
                     ->sortable(),
@@ -60,10 +62,10 @@ class OrderResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
-                    ->options(collect(OrderStatus::cases())->mapWithKeys(fn ($s) => [$s->value => $s->label()])),
+                    ->options(collect(OrderStatus::cases())->mapWithKeys(fn (OrderStatus $s): array => [$s->value => $s->label()])),
                 SelectFilter::make('order_source')
                     ->label('Sumber')
-                    ->options(collect(OrderSource::cases())->mapWithKeys(fn ($s) => [$s->value => $s->label()])),
+                    ->options(collect(OrderSource::cases())->mapWithKeys(fn (OrderSource $s): array => [$s->value => $s->label()])),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

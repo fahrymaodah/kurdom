@@ -1,8 +1,11 @@
 <?php
 
-namespace App\Filament\Resources\UserResource\Pages;
+declare(strict_types=1);
 
-use App\Filament\Resources\UserResource;
+namespace App\Filament\Admin\Resources\UserResource\Pages;
+
+use App\Filament\Admin\Resources\UserResource;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListUsers extends ListRecords
@@ -12,7 +15,7 @@ class ListUsers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            \Filament\Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 }

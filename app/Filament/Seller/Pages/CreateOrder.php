@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Seller\Pages;
 
 use App\Enums\OrderSource;
@@ -8,6 +10,7 @@ use App\Services\OrderService;
 use App\Services\PhoneLookupService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -17,12 +20,13 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class CreateOrder extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-plus-circle';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::PlusCircle;
 
     protected static ?string $title = 'Buat Pesanan';
 
@@ -57,15 +61,15 @@ class CreateOrder extends Page implements HasForms
             ->components([
                 Select::make('order_source')
                     ->label('Sumber Pesanan')
-                    ->options(collect(OrderSource::cases())->mapWithKeys(fn ($s) => [$s->value => $s->label()]))
+                    ->options(collect(OrderSource::cases())->mapWithKeys(fn (OrderSource $s): array => [$s->value => $s->label()]))
                     ->required(),
                 TextInput::make('buyer_phone')
                     ->label('No. Telepon Pembeli')
                     ->tel()
                     ->required()
                     ->suffixAction(
-                        \Filament\Forms\Components\Actions\Action::make('lookupBuyer')
-                            ->icon('heroicon-o-magnifying-glass')
+                        FormAction::make('lookupBuyer')
+                            ->icon(Heroicon::MagnifyingGlass)
                             ->action(function ($state, $set) {
                                 $user = app(PhoneLookupService::class)->findByPhone($state);
                                 if ($user) {

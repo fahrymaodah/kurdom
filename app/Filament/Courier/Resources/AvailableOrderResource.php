@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Courier\Resources;
 
 use App\Enums\OrderStatus;
@@ -8,6 +10,7 @@ use App\Services\OrderService;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -18,7 +21,7 @@ class AvailableOrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-queue-list';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::QueueList;
 
     protected static ?string $modelLabel = 'Pesanan Tersedia';
 
@@ -64,7 +67,7 @@ class AvailableOrderResource extends Resource
                 Tables\Actions\Action::make('claim')
                     ->label('Ambil Pesanan')
                     ->color('success')
-                    ->icon('heroicon-o-hand-raised')
+                    ->icon(Heroicon::HandRaised)
                     ->requiresConfirmation()
                     ->modalHeading('Ambil Pesanan?')
                     ->modalDescription('Anda akan bertanggung jawab mengantarkan pesanan ini.')

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Courier\Resources;
 
 use App\Enums\OrderStatus;
@@ -9,6 +11,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -19,7 +22,7 @@ class MyOrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-check';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::ClipboardDocumentCheck;
 
     protected static ?string $modelLabel = 'Pesanan Saya';
 
@@ -48,8 +51,8 @@ class MyOrderResource extends Resource
                     ->label('Pembeli'),
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn (OrderStatus $state) => $state->label())
-                    ->color(fn (OrderStatus $state) => $state->color()),
+                    ->formatStateUsing(fn (OrderStatus $state): string => $state->label())
+                    ->color(fn (OrderStatus $state): string => $state->color()),
                 TextColumn::make('delivery_fee')
                     ->label('Ongkir')
                     ->money('IDR'),
@@ -61,35 +64,35 @@ class MyOrderResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
-                    ->options(collect(OrderStatus::cases())->mapWithKeys(fn ($s) => [$s->value => $s->label()])),
+                    ->options(collect(OrderStatus::cases())->mapWithKeys(fn (OrderStatus $s): array => [$s->value => $s->label()])),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\Action::make('pickedUp')
                     ->label('Picked Up')
                     ->color('warning')
-                    ->icon('heroicon-o-archive-box')
+                    ->icon(Heroicon::ArchiveBox)
                     ->requiresConfirmation()
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::PickedUp))
                     ->action(fn (Order $record) => app(OrderService::class)->updateStatus($record, OrderStatus::PickedUp)),
                 Tables\Actions\Action::make('startDelivery')
                     ->label('Mulai Antar')
                     ->color('primary')
-                    ->icon('heroicon-o-truck')
+                    ->icon(Heroicon::Truck)
                     ->requiresConfirmation()
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::InDelivery))
                     ->action(fn (Order $record) => app(OrderService::class)->updateStatus($record, OrderStatus::InDelivery)),
                 Tables\Actions\Action::make('complete')
                     ->label('Selesai')
                     ->color('success')
-                    ->icon('heroicon-o-check-circle')
+                    ->icon(Heroicon::CheckCircle)
                     ->requiresConfirmation()
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::Completed))
                     ->action(fn (Order $record) => app(OrderService::class)->updateStatus($record, OrderStatus::Completed)),
                 Tables\Actions\Action::make('cancel')
                     ->label('Batalkan')
                     ->color('danger')
-                    ->icon('heroicon-o-x-circle')
+                    ->icon(Heroicon::XCircle)
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::Cancelled))
                     ->form([
                         Textarea::make('cancel_reason')

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Courier\Resources\AvailableOrderResource\Pages;
 
 use App\Filament\Courier\Resources\AvailableOrderResource;

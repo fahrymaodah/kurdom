@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Filament\Resources\DeliveryFeeConfigResource\Pages;
+declare(strict_types=1);
 
-use App\Filament\Resources\DeliveryFeeConfigResource;
+namespace App\Filament\Admin\Resources\DeliveryFeeConfigResource\Pages;
+
+use App\Filament\Admin\Resources\DeliveryFeeConfigResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateDeliveryFeeConfig extends CreateRecord

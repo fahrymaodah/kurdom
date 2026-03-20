@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Seller\Resources;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
+use App\Services\OrderService;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -17,7 +21,7 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::ClipboardDocumentList;
 
     protected static ?string $modelLabel = 'Pesanan';
 
@@ -45,8 +49,8 @@ class OrderResource extends Resource
                     ->default('-'),
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn (OrderStatus $state) => $state->label())
-                    ->color(fn (OrderStatus $state) => $state->color()),
+                    ->formatStateUsing(fn (OrderStatus $state): string => $state->label())
+                    ->color(fn (OrderStatus $state): string => $state->color()),
                 TextColumn::make('total')
                     ->money('IDR'),
                 TextColumn::make('created_at')
@@ -57,17 +61,17 @@ class OrderResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
-                    ->options(collect(OrderStatus::cases())->mapWithKeys(fn ($s) => [$s->value => $s->label()])),
+                    ->options(collect(OrderStatus::cases())->mapWithKeys(fn (OrderStatus $s): array => [$s->value => $s->label()])),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\Action::make('cancel')
                     ->label('Batalkan')
                     ->color('danger')
-                    ->icon('heroicon-o-x-circle')
+                    ->icon(Heroicon::XCircle)
                     ->requiresConfirmation()
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::Cancelled))
-                    ->action(fn (Order $record) => app(\App\Services\OrderService::class)->cancelOrder($record, 'Dibatalkan oleh seller')),
+                    ->action(fn (Order $record) => app(OrderService::class)->cancelOrder($record, 'Dibatalkan oleh seller')),
             ]);
     }
 

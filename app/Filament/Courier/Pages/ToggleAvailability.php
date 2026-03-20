@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Courier\Pages;
 
 use App\Models\CourierProfile;
@@ -7,10 +9,11 @@ use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Support\Icons\Heroicon;
 
 class ToggleAvailability extends Page
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-signal';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::Signal;
 
     protected static ?string $title = 'Status Online';
 
@@ -51,7 +54,7 @@ class ToggleAvailability extends Page
             Action::make('toggle')
                 ->label(fn () => $this->isOnline ? 'Go Offline' : 'Go Online')
                 ->color(fn () => $this->isOnline ? 'danger' : 'success')
-                ->icon(fn () => $this->isOnline ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
+                ->icon(fn (): Heroicon => $this->isOnline ? Heroicon::XCircle : Heroicon::CheckCircle)
                 ->action('toggle')
                 ->size('lg'),
         ];

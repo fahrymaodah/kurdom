@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Str;
+use LogicException;
 
 class OrderService
 {
@@ -54,7 +57,7 @@ class OrderService
     public function claimOrder(Order $order, User $courier): Order
     {
         if (! $order->canTransitionTo(OrderStatus::CourierAssigned)) {
-            throw new \LogicException('Order cannot be claimed in its current status.');
+            throw new LogicException('Order cannot be claimed in its current status.');
         }
 
         $order->update([
@@ -69,7 +72,7 @@ class OrderService
     public function updateStatus(Order $order, OrderStatus $newStatus, ?string $cancelReason = null): Order
     {
         if (! $order->canTransitionTo($newStatus)) {
-            throw new \LogicException("Cannot transition from {$order->status->label()} to {$newStatus->label()}.");
+            throw new LogicException("Cannot transition from {$order->status->label()} to {$newStatus->label()}.");;
         }
 
         $timestamps = match ($newStatus) {

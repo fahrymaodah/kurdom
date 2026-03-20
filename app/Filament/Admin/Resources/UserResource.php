@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Filament\Resources;
+declare(strict_types=1);
+
+namespace App\Filament\Admin\Resources;
 
 use App\Enums\UserRole;
 use App\Models\User;
@@ -9,19 +11,19 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use UnitEnum;
-use BackedEnum;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-users';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::Users;
 
     protected static string | UnitEnum | null $navigationGroup = 'Manajemen';
 
@@ -45,10 +47,10 @@ class UserResource extends Resource
                 TextInput::make('password')
                     ->password()
                     ->revealable()
-                    ->dehydrated(fn ($state) => filled($state))
+                    ->dehydrated(fn (?string $state): bool => filled($state))
                     ->required(fn (string $operation): bool => $operation === 'create'),
                 Select::make('role')
-                    ->options(collect(UserRole::cases())->mapWithKeys(fn ($role) => [$role->value => $role->label()]))
+                    ->options(collect(UserRole::cases())->mapWithKeys(fn (UserRole $role): array => [$role->value => $role->label()]))
                     ->required(),
                 TextInput::make('address_text')
                     ->label('Alamat')
@@ -77,7 +79,7 @@ class UserResource extends Resource
                     ->searchable(),
                 TextColumn::make('role')
                     ->badge()
-                    ->formatStateUsing(fn (UserRole $state) => $state->label()),
+                    ->formatStateUsing(fn (UserRole $state): string => $state->label()),
                 IconColumn::make('is_active')
                     ->label('Aktif')
                     ->boolean(),
@@ -87,14 +89,14 @@ class UserResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('role')
-                    ->options(collect(UserRole::cases())->mapWithKeys(fn ($role) => [$role->value => $role->label()])),
+                    ->options(collect(UserRole::cases())->mapWithKeys(fn (UserRole $role): array => [$role->value => $role->label()])),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('toggleActive')
-                    ->label(fn (User $record) => $record->is_active ? 'Nonaktifkan' : 'Aktifkan')
-                    ->icon(fn (User $record) => $record->is_active ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
-                    ->color(fn (User $record) => $record->is_active ? 'danger' : 'success')
+                    ->label(fn (User $record): string => $record->is_active ? 'Nonaktifkan' : 'Aktifkan')
+                    ->icon(fn (User $record): Heroicon => $record->is_active ? Heroicon::XCircle : Heroicon::CheckCircle)
+                    ->color(fn (User $record): string => $record->is_active ? 'danger' : 'success')
                     ->requiresConfirmation()
                     ->action(fn (User $record) => $record->update(['is_active' => ! $record->is_active])),
             ])
