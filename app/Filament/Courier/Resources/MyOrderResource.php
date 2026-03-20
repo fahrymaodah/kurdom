@@ -7,12 +7,12 @@ namespace App\Filament\Courier\Resources;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Services\OrderService;
+use Filament\Actions;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -67,29 +67,29 @@ class MyOrderResource extends Resource
                     ->options(collect(OrderStatus::cases())->mapWithKeys(fn (OrderStatus $s): array => [$s->value => $s->label()])),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\Action::make('pickedUp')
+                Actions\ViewAction::make(),
+                Actions\Action::make('pickedUp')
                     ->label('Picked Up')
                     ->color('warning')
                     ->icon(Heroicon::ArchiveBox)
                     ->requiresConfirmation()
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::PickedUp))
                     ->action(fn (Order $record) => app(OrderService::class)->updateStatus($record, OrderStatus::PickedUp)),
-                Tables\Actions\Action::make('startDelivery')
+                Actions\Action::make('startDelivery')
                     ->label('Mulai Antar')
                     ->color('primary')
                     ->icon(Heroicon::Truck)
                     ->requiresConfirmation()
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::InDelivery))
                     ->action(fn (Order $record) => app(OrderService::class)->updateStatus($record, OrderStatus::InDelivery)),
-                Tables\Actions\Action::make('complete')
+                Actions\Action::make('complete')
                     ->label('Selesai')
                     ->color('success')
                     ->icon(Heroicon::CheckCircle)
                     ->requiresConfirmation()
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::Completed))
                     ->action(fn (Order $record) => app(OrderService::class)->updateStatus($record, OrderStatus::Completed)),
-                Tables\Actions\Action::make('cancel')
+                Actions\Action::make('cancel')
                     ->label('Batalkan')
                     ->color('danger')
                     ->icon(Heroicon::XCircle)

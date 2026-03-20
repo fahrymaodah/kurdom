@@ -7,11 +7,11 @@ namespace App\Filament\Courier\Resources;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Services\OrderService;
+use Filament\Actions;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -64,7 +64,7 @@ class AvailableOrderResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
-                Tables\Actions\Action::make('claim')
+                Actions\Action::make('claim')
                     ->label('Ambil Pesanan')
                     ->color('success')
                     ->icon(Heroicon::HandRaised)

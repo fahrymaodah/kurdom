@@ -9,10 +9,10 @@ use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Actions;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -92,8 +92,8 @@ class UserResource extends Resource
                     ->options(collect(UserRole::cases())->mapWithKeys(fn (UserRole $role): array => [$role->value => $role->label()])),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('toggleActive')
+                Actions\EditAction::make(),
+                Actions\Action::make('toggleActive')
                     ->label(fn (User $record): string => $record->is_active ? 'Nonaktifkan' : 'Aktifkan')
                     ->icon(fn (User $record): Heroicon => $record->is_active ? Heroicon::XCircle : Heroicon::CheckCircle)
                     ->color(fn (User $record): string => $record->is_active ? 'danger' : 'success')
@@ -101,8 +101,8 @@ class UserResource extends Resource
                     ->action(fn (User $record) => $record->update(['is_active' => ! $record->is_active])),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
