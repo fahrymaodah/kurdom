@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Seller\Pages;
 
-use App\Models\SellerProfile;
+use App\Services\SellerProfileService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Textarea;
@@ -103,18 +103,7 @@ class StoreProfile extends Page
         $data = $this->form->getState();
         $user = Filament::auth()->user();
 
-        SellerProfile::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'store_name' => $data['store_name'],
-                'store_description' => $data['store_description'],
-                'opening_time' => $data['opening_time'],
-                'closing_time' => $data['closing_time'],
-                'is_open' => $data['is_open'],
-            ]
-        );
-
-        $user->update(['address_text' => $data['address_text']]);
+        app(SellerProfileService::class)->updateProfile($user, $data);
 
         Notification::make()
             ->title('Profil toko berhasil disimpan')

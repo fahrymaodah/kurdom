@@ -1,23 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\Vehicle;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[Fillable([
+    'user_id', 'is_online', 'zone_latitude', 'zone_longitude',
+    'zone_radius_km', 'vehicle', 'license_plate', 'average_rating',
+])]
 class CourierProfile extends Model
 {
-    protected $fillable = [
-        'user_id',
-        'is_online',
-        'zone_latitude',
-        'zone_longitude',
-        'zone_radius_km',
-        'vehicle',
-        'license_plate',
-        'average_rating',
-    ];
 
     protected function casts(): array
     {
@@ -40,12 +38,12 @@ class CourierProfile extends Model
 
     // ── Scopes ────────────────────────────────
 
-    public function scopeOnline($query)
+    public function scopeOnline(Builder $query): Builder
     {
         return $query->where('is_online', true);
     }
 
-    public function scopeAvailable($query)
+    public function scopeAvailable(Builder $query): Builder
     {
         return $query->online()->whereHas('user', fn ($q) => $q->active());
     }

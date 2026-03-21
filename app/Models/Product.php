@@ -1,24 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[Fillable([
+    'seller_id', 'category_id', 'name', 'description', 'price',
+    'photo', 'is_available', 'is_preorder', 'min_preorder_hours',
+])]
 class Product extends Model
 {
-    protected $fillable = [
-        'seller_id',
-        'category_id',
-        'name',
-        'description',
-        'price',
-        'photo',
-        'is_available',
-        'is_preorder',
-        'min_preorder_hours',
-    ];
 
     protected function casts(): array
     {
@@ -49,12 +46,12 @@ class Product extends Model
 
     // ── Scopes ────────────────────────────────
 
-    public function scopeAvailable($query)
+    public function scopeAvailable(Builder $query): Builder
     {
         return $query->where('is_available', true);
     }
 
-    public function scopePreorder($query)
+    public function scopePreorder(Builder $query): Builder
     {
         return $query->where('is_preorder', true);
     }

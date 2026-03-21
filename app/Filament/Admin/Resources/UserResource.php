@@ -6,6 +6,7 @@ namespace App\Filament\Admin\Resources;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use App\Services\UserService;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -98,7 +99,7 @@ class UserResource extends Resource
                     ->icon(fn (User $record): Heroicon => $record->is_active ? Heroicon::XCircle : Heroicon::CheckCircle)
                     ->color(fn (User $record): string => $record->is_active ? 'danger' : 'success')
                     ->requiresConfirmation()
-                    ->action(fn (User $record) => $record->update(['is_active' => ! $record->is_active])),
+                    ->action(fn (User $record) => app(UserService::class)->toggleActive($record)),
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([

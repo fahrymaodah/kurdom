@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Courier\Pages;
 
-use App\Models\CourierProfile;
+use App\Services\CourierProfileService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
@@ -35,10 +35,7 @@ class ToggleAvailability extends Page
     {
         $user = Filament::auth()->user();
 
-        $profile = CourierProfile::updateOrCreate(
-            ['user_id' => $user->id],
-            ['is_online' => ! $this->isOnline]
-        );
+        $profile = app(CourierProfileService::class)->toggleOnline($user);
 
         $this->isOnline = $profile->is_online;
 

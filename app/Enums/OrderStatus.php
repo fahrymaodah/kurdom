@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum OrderStatus: string
@@ -14,12 +16,12 @@ enum OrderStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::New => 'New',
-            self::CourierAssigned => 'Courier Assigned',
-            self::PickedUp => 'Picked Up',
-            self::InDelivery => 'In Delivery',
-            self::Completed => 'Completed',
-            self::Cancelled => 'Cancelled',
+            self::New => 'Baru',
+            self::CourierAssigned => 'Kurir Ditugaskan',
+            self::PickedUp => 'Diambil',
+            self::InDelivery => 'Dalam Pengiriman',
+            self::Completed => 'Selesai',
+            self::Cancelled => 'Dibatalkan',
         };
     }
 

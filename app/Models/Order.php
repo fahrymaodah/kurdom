@@ -1,42 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\OrderSource;
 use App\Enums\OrderStatus;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[Fillable([
+    'order_code', 'order_source', 'seller_id', 'courier_id', 'buyer_id',
+    'buyer_name', 'buyer_phone',
+    'pickup_latitude', 'pickup_longitude', 'pickup_address_text',
+    'delivery_latitude', 'delivery_longitude', 'delivery_address_text',
+    'distance_km', 'item_price', 'delivery_fee', 'total',
+    'notes', 'status',
+    'courier_assigned_at', 'picked_up_at', 'delivery_started_at',
+    'completed_at', 'cancelled_at', 'cancel_reason',
+])]
 class Order extends Model
 {
-    protected $fillable = [
-        'order_code',
-        'order_source',
-        'seller_id',
-        'courier_id',
-        'buyer_id',
-        'buyer_name',
-        'buyer_phone',
-        'pickup_latitude',
-        'pickup_longitude',
-        'pickup_address_text',
-        'delivery_latitude',
-        'delivery_longitude',
-        'delivery_address_text',
-        'distance_km',
-        'item_price',
-        'delivery_fee',
-        'total',
-        'notes',
-        'status',
-        'courier_assigned_at',
-        'picked_up_at',
-        'delivery_started_at',
-        'completed_at',
-        'cancelled_at',
-        'cancel_reason',
-    ];
 
     protected function casts(): array
     {
@@ -88,12 +75,12 @@ class Order extends Model
 
     // ── Scopes ────────────────────────────────
 
-    public function scopeNew($query)
+    public function scopeNew(Builder $query): Builder
     {
         return $query->where('status', OrderStatus::New);
     }
 
-    public function scopeInProgress($query)
+    public function scopeInProgress(Builder $query): Builder
     {
         return $query->whereIn('status', [
             OrderStatus::CourierAssigned,
@@ -102,12 +89,12 @@ class Order extends Model
         ]);
     }
 
-    public function scopeCompleted($query)
+    public function scopeCompleted(Builder $query): Builder
     {
         return $query->where('status', OrderStatus::Completed);
     }
 
-    public function scopeFromSource($query, OrderSource $source)
+    public function scopeFromSource(Builder $query, OrderSource $source): Builder
     {
         return $query->where('order_source', $source);
     }

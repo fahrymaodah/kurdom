@@ -7,7 +7,7 @@ namespace App\Filament\Seller\Pages;
 use App\Enums\OrderSource;
 use App\Services\DeliveryFeeService;
 use App\Services\OrderService;
-use App\Services\PhoneLookupService;
+use App\Services\UserService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Placeholder;
@@ -67,7 +67,7 @@ class CreateOrder extends Page
                         Action::make('lookupBuyer')
                             ->icon(Heroicon::MagnifyingGlass)
                             ->action(function ($state, $set) {
-                                $user = app(PhoneLookupService::class)->findByPhone($state);
+                                $user = app(UserService::class)->findByPhone($state);
                                 if ($user) {
                                     $set('buyer_name', $user->name);
                                     $set('delivery_address_text', $user->address_text ?? '');

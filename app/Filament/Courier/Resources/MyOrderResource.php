@@ -94,7 +94,7 @@ class MyOrderResource extends Resource
                     ->color('danger')
                     ->icon(Heroicon::XCircle)
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::Cancelled))
-                    ->form([
+                    ->schema([
                         Textarea::make('cancel_reason')
                             ->label('Alasan Pembatalan')
                             ->required(),

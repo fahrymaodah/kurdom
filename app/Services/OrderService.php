@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\User;
+use App\Repositories\Contracts\OrderRepositoryInterface;
 use Illuminate\Support\Str;
 use LogicException;
 
@@ -14,6 +15,7 @@ class OrderService
 {
     public function __construct(
         protected DeliveryFeeService $deliveryFeeService,
+        protected OrderRepositoryInterface $orderRepository,
     ) {}
 
     /**
@@ -32,7 +34,7 @@ class OrderService
         $deliveryFee = $feeResult['delivery_fee'];
         $total = $itemPrice + $deliveryFee;
 
-        return Order::create([
+        return $this->orderRepository->create([
             'order_code' => 'KD-' . strtoupper(Str::random(8)),
             'order_source' => $data['order_source'],
             'seller_id' => $seller->id,
@@ -60,19 +62,17 @@ class OrderService
             throw new LogicException('Order cannot be claimed in its current status.');
         }
 
-        $order->update([
+        return $this->orderRepository->update($order, [
             'courier_id' => $courier->id,
             'status' => OrderStatus::CourierAssigned,
             'courier_assigned_at' => now(),
         ]);
-
-        return $order->refresh();
     }
 
     public function updateStatus(Order $order, OrderStatus $newStatus, ?string $cancelReason = null): Order
     {
         if (! $order->canTransitionTo($newStatus)) {
-            throw new LogicException("Cannot transition from {$order->status->label()} to {$newStatus->label()}.");;
+            throw new LogicException("Cannot transition from {$order->status->label()} to {$newStatus->label()}.");
         }
 
         $timestamps = match ($newStatus) {
@@ -83,12 +83,10 @@ class OrderService
             default => [],
         };
 
-        $order->update([
+        return $this->orderRepository->update($order, [
             'status' => $newStatus,
             ...$timestamps,
         ]);
-
-        return $order->refresh();
     }
 
     public function cancelOrder(Order $order, ?string $reason = null): Order

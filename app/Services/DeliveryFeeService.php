@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\DeliveryFeeConfig;
+use App\Repositories\Contracts\DeliveryFeeConfigRepositoryInterface;
 use Carbon\Carbon;
 
 class DeliveryFeeService
 {
+    public function __construct(
+        protected DeliveryFeeConfigRepositoryInterface $configRepository,
+    ) {}
+
     /**
      * Calculate the Haversine distance between two coordinates in kilometers.
      */
@@ -44,7 +48,7 @@ class DeliveryFeeService
         float $deliveryLng,
         ?Carbon $at = null,
     ): array {
-        $config = DeliveryFeeConfig::active()->latest()->first();
+        $config = $this->configRepository->getActiveConfig();
 
         if (! $config) {
             return [

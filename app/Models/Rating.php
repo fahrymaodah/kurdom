@@ -1,22 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[Fillable(['order_id', 'from_user_id', 'to_user_id', 'score', 'comment', 'created_at'])]
 class Rating extends Model
 {
     public $timestamps = false;
-
-    protected $fillable = [
-        'order_id',
-        'from_user_id',
-        'to_user_id',
-        'score',
-        'comment',
-        'created_at',
-    ];
 
     protected function casts(): array
     {
