@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Services\OrderService;
 use Filament\Actions;
 use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -72,6 +73,11 @@ class AvailableOrderResource extends Resource
                     ->modalDescription('Anda akan bertanggung jawab mengantarkan pesanan ini.')
                     ->action(function (Order $record) {
                         app(OrderService::class)->claimOrder($record, Filament::auth()->user());
+
+                        Notification::make()
+                            ->title('Pesanan ' . $record->order_code . ' berhasil diambil!')
+                            ->success()
+                            ->send();
                     }),
             ])
             ->poll('15s');

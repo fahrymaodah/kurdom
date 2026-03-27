@@ -10,6 +10,7 @@ use App\Services\OrderService;
 use App\Services\UserService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -21,6 +22,7 @@ use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Livewire\Attributes\On;
 
 class CreateOrder extends Page
 {
@@ -32,15 +34,29 @@ class CreateOrder extends Page
 
     protected static ?int $navigationSort = 2;
 
+    protected string $view = 'filament.seller.pages.create-order';
+
     public ?array $data = [];
 
     public ?float $estimatedFee = null;
 
     public ?float $estimatedDistance = null;
 
+    // Map state
+    public ?float $pickupLat = null;
+
+    public ?float $pickupLng = null;
+
+    public ?float $deliveryLat = null;
+
+    public ?float $deliveryLng = null;
+
     public function mount(): void
     {
         $user = Filament::auth()->user();
+
+        $this->pickupLat = $user->latitude ? (float) $user->latitude : null;
+        $this->pickupLng = $user->longitude ? (float) $user->longitude : null;
 
         $this->form->fill([
             'pickup_latitude' => $user->latitude,
@@ -48,6 +64,30 @@ class CreateOrder extends Page
             'pickup_address_text' => $user->address_text,
             'order_source' => OrderSource::WaFb->value,
         ]);
+    }
+
+    #[On('pickup-location-updated')]
+    public function onPickupLocationUpdated(float $lat, float $lng, ?string $address = null): void
+    {
+        $this->pickupLat = $lat;
+        $this->pickupLng = $lng;
+        $this->data['pickup_latitude'] = $lat;
+        $this->data['pickup_longitude'] = $lng;
+        if ($address) {
+            $this->data['pickup_address_text'] = $address;
+        }
+    }
+
+    #[On('delivery-location-updated')]
+    public function onDeliveryLocationUpdated(float $lat, float $lng, ?string $address = null): void
+    {
+        $this->deliveryLat = $lat;
+        $this->deliveryLng = $lng;
+        $this->data['delivery_latitude'] = $lat;
+        $this->data['delivery_longitude'] = $lng;
+        if ($address) {
+            $this->data['delivery_address_text'] = $address;
+        }
     }
 
     public function form(Schema $schema): Schema
@@ -87,26 +127,14 @@ class CreateOrder extends Page
                     ->label('Alamat Pickup')
                     ->required()
                     ->maxLength(500),
-                TextInput::make('pickup_latitude')
-                    ->label('Latitude Pickup')
-                    ->numeric()
-                    ->required(),
-                TextInput::make('pickup_longitude')
-                    ->label('Longitude Pickup')
-                    ->numeric()
-                    ->required(),
+                Hidden::make('pickup_latitude'),
+                Hidden::make('pickup_longitude'),
                 TextInput::make('delivery_address_text')
                     ->label('Alamat Pengiriman')
                     ->required()
                     ->maxLength(500),
-                TextInput::make('delivery_latitude')
-                    ->label('Latitude Pengiriman')
-                    ->numeric()
-                    ->required(),
-                TextInput::make('delivery_longitude')
-                    ->label('Longitude Pengiriman')
-                    ->numeric()
-                    ->required(),
+                Hidden::make('delivery_latitude'),
+                Hidden::make('delivery_longitude'),
                 TextInput::make('item_price')
                     ->label('Harga Barang (Rp)')
                     ->numeric()
@@ -192,5 +220,7 @@ class CreateOrder extends Page
 
         $this->estimatedFee = null;
         $this->estimatedDistance = null;
+        $this->deliveryLat = null;
+        $this->deliveryLng = null;
     }
 }

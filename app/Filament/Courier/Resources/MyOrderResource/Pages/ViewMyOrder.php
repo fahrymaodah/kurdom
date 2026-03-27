@@ -10,4 +10,6 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewMyOrder extends ViewRecord
 {
     protected static string $resource = MyOrderResource::class;
+
+    protected string $view = 'filament.courier.pages.view-my-order';
 }

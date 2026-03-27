@@ -5,8 +5,14 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Events\OrderCreated;
+use App\Events\OrderStatusUpdated;
+use App\Events\OrderTaken;
 use App\Models\Order;
 use App\Models\User;
+use App\Notifications\OrderClaimedNotification;
+use App\Notifications\OrderCreatedNotification;
+use App\Notifications\OrderStatusNotification;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use Illuminate\Support\Str;
 use LogicException;
@@ -34,7 +40,7 @@ class OrderService
         $deliveryFee = $feeResult['delivery_fee'];
         $total = $itemPrice + $deliveryFee;
 
-        return $this->orderRepository->create([
+        return tap($this->orderRepository->create([
             'order_code' => 'KD-' . strtoupper(Str::random(8)),
             'order_source' => $data['order_source'],
             'seller_id' => $seller->id,
@@ -53,7 +59,13 @@ class OrderService
             'total' => $total,
             'notes' => $data['notes'] ?? null,
             'status' => OrderStatus::New,
-        ]);
+        ]), function (Order $order) {
+            OrderCreated::dispatch($order->load('seller'));
+
+            if ($order->buyer_id) {
+                $order->buyer?->notify(new OrderCreatedNotification($order));
+            }
+        });
     }
 
     public function claimOrder(Order $order, User $courier): Order
@@ -62,11 +74,18 @@ class OrderService
             throw new LogicException('Order cannot be claimed in its current status.');
         }
 
-        return $this->orderRepository->update($order, [
+        return tap($this->orderRepository->update($order, [
             'courier_id' => $courier->id,
             'status' => OrderStatus::CourierAssigned,
             'courier_assigned_at' => now(),
-        ]);
+        ]), function (Order $o) {
+            OrderTaken::dispatch($o->load('courier'));
+
+            $o->seller?->notify(new OrderClaimedNotification($o));
+            if ($o->buyer_id) {
+                $o->buyer?->notify(new OrderClaimedNotification($o));
+            }
+        });
     }
 
     public function updateStatus(Order $order, OrderStatus $newStatus, ?string $cancelReason = null): Order
@@ -83,10 +102,18 @@ class OrderService
             default => [],
         };
 
-        return $this->orderRepository->update($order, [
+        return tap($this->orderRepository->update($order, [
             'status' => $newStatus,
             ...$timestamps,
-        ]);
+        ]), function (Order $o) {
+            OrderStatusUpdated::dispatch($o);
+
+            $o->seller?->notify(new OrderStatusNotification($o));
+            $o->courier?->notify(new OrderStatusNotification($o));
+            if ($o->buyer_id) {
+                $o->buyer?->notify(new OrderStatusNotification($o));
+            }
+        });
     }
 
     public function cancelOrder(Order $order, ?string $reason = null): Order

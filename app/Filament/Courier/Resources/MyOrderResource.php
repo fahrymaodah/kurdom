@@ -10,6 +10,7 @@ use App\Services\OrderService;
 use Filament\Actions;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -74,21 +75,33 @@ class MyOrderResource extends Resource
                     ->icon(Heroicon::ArchiveBox)
                     ->requiresConfirmation()
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::PickedUp))
-                    ->action(fn (Order $record) => app(OrderService::class)->updateStatus($record, OrderStatus::PickedUp)),
+                    ->action(function (Order $record) {
+                        app(OrderService::class)->updateStatus($record, OrderStatus::PickedUp);
+
+                        Notification::make()->title('Barang telah diambil')->success()->send();
+                    }),
                 Actions\Action::make('startDelivery')
                     ->label('Mulai Antar')
                     ->color('primary')
                     ->icon(Heroicon::Truck)
                     ->requiresConfirmation()
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::InDelivery))
-                    ->action(fn (Order $record) => app(OrderService::class)->updateStatus($record, OrderStatus::InDelivery)),
+                    ->action(function (Order $record) {
+                        app(OrderService::class)->updateStatus($record, OrderStatus::InDelivery);
+
+                        Notification::make()->title('Pengiriman dimulai')->success()->send();
+                    }),
                 Actions\Action::make('complete')
                     ->label('Selesai')
                     ->color('success')
                     ->icon(Heroicon::CheckCircle)
                     ->requiresConfirmation()
                     ->visible(fn (Order $record) => $record->canTransitionTo(OrderStatus::Completed))
-                    ->action(fn (Order $record) => app(OrderService::class)->updateStatus($record, OrderStatus::Completed)),
+                    ->action(function (Order $record) {
+                        app(OrderService::class)->updateStatus($record, OrderStatus::Completed);
+
+                        Notification::make()->title('Pesanan selesai!')->success()->send();
+                    }),
                 Actions\Action::make('cancel')
                     ->label('Batalkan')
                     ->color('danger')

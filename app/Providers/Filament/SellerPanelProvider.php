@@ -14,6 +14,8 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\MaxWidth;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -29,6 +31,8 @@ class SellerPanelProvider extends PanelProvider
         return $panel
             ->id('seller')
             ->path('seller')
+            ->authGuard('seller')
+            ->viteTheme('resources/css/filament/seller/theme.css')
             ->login(Login::class)
             ->registration(Register::class)
             ->brandName('KurDom Seller')
@@ -44,6 +48,12 @@ class SellerPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
             ])
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => \Illuminate\Support\Facades\Blade::render('<x-leaflet-assets />'),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
